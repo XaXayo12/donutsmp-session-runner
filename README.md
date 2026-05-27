@@ -313,6 +313,10 @@ npm start
 If it says "Cannot find package 'mineflayer'", you skipped npm install or ran it in the wrong folder.
 ```
 
+If Microsoft shows a browser code even though you added token/session files,
+update the project. Session files are meant to be used directly; they should not
+force a new Microsoft device login.
+
 ## License
 
 This project is released under a custom personal-use license. You may use it for

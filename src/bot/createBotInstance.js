@@ -24,12 +24,12 @@ async function loadMineflayer () {
   }
 }
 
-function createOptions (account, config) {
+export function createOptions (account, config) {
   const options = {
     host: config.connection.host,
     port: config.connection.port,
     username: account.name,
-    auth: account.auth || config.connection.auth,
+    auth: account.session ? 'mojang' : (account.auth || config.connection.auth),
     version: config.connection.version || false,
     brand: config.connection.brand,
     profilesFolder: config.connection.profilesFolder,
@@ -42,7 +42,10 @@ function createOptions (account, config) {
     plugins: internalPluginOverrides(config.plugins.internalOverrides)
   }
 
-  if (account.session) options.session = account.session
+  if (account.session) {
+    options.session = account.session
+    options.skipValidation = true
+  }
 
   return options
 }

@@ -16,6 +16,7 @@ function normalizeAccount (record, source) {
   const name = text(record.username || record.name || record.profileName || profile?.name)
   const profileId = compactUuid(record.uuid || record.profileId || record.selectedProfileId || profile?.id || record.id)
   const accessToken = text(record.accessToken || record.token || record.ygg?.token || record.session?.accessToken)
+  const clientToken = text(record.clientToken || record.ygg?.clientToken || record.session?.clientToken)
 
   if (!name) return null
 
@@ -27,14 +28,19 @@ function normalizeAccount (record, source) {
   }
 
   if (accessToken && profileId) {
+    const selectedProfile = {
+      id: profileId,
+      name
+    }
+
     account.session = {
       accessToken,
-      selectedProfile: {
-        id: profileId,
-        name
-      },
+      selectedProfile,
+      availableProfiles: [selectedProfile],
       type: text(record.session?.type || record.type) || 'mojang'
     }
+
+    if (clientToken) account.session.clientToken = clientToken
   }
 
   return account

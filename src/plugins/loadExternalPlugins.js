@@ -5,7 +5,7 @@ const plugins = {
   },
   autoEat: {
     packageName: 'mineflayer-auto-eat',
-    resolve: mod => mod.plugin || mod.default?.plugin || mod.default || mod
+    resolve: mod => mod.loader || mod.plugin || mod.default?.loader || mod.default?.plugin || mod.default || mod
   },
   armorManager: {
     packageName: 'mineflayer-armor-manager',
