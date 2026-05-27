@@ -1,6 +1,6 @@
 {
   "name": "donutsmp-session-runner",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "A personal-use Mineflayer session runner for DonutSMP AFK and playtime automation.",
   "private": true,
   "type": "module",
@@ -50,6 +50,7 @@
     "mineflayer-armor-manager": "^2.0.1",
     "mineflayer-auto-eat": "^5.0.3",
     "mineflayer-pathfinder": "^2.4.5",
-    "mineflayer-tool": "^1.2.0"
+    "mineflayer-tool": "^1.2.0",
+    "prismarine-auth": "^3.1.1"
   }
 }

@@ -90,10 +90,10 @@ export class BotRunner {
   async ended (reason) {
     await this.logger.warn('end', { reason: stringify(reason) })
     this.closeScope()
-    if (this.authRejected && stringify(reason) === 'encryptionLoginError') {
+    if (this.authRejected && isAuthEndReason(reason)) {
       this.stopped = true
       await this.logger.warn('auth_rejected_stop', {
-        message: 'The session token was rejected by the Minecraft session server. Use a fresh Minecraft Java access token/session file.'
+        message: 'The Minecraft access token was rejected. Use a fresh Minecraft Java session file, not a Microsoft/Xbox token or an old ygg token.'
       })
       return
     }
@@ -152,5 +152,9 @@ function errorMeta (error) {
 }
 
 function isAuthRejected (error) {
-  return /ForbiddenOperationException|Invalid token|invalid token|Unauthorized/i.test(error?.message || String(error))
+  return /ForbiddenOperationException|Invalid token|invalid token|Unauthorized|session_token_rejected|SESSION_TOKEN_REJECTED|session_refresh_failed|SESSION_REFRESH_FAILED|session_token_missing|SESSION_TOKEN_MISSING/i.test(error?.message || String(error))
+}
+
+function isAuthEndReason (reason) {
+  return /encryptionLoginError|sessionAuthError/i.test(stringify(reason))
 }

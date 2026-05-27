@@ -120,7 +120,7 @@ https://github.com/XaXayo12/donutsmp-session-runner/releases
 Download:
 
 ```txt
-donutsmp-session-runner-v1.0.1.zip
+donutsmp-session-runner-v1.0.2.zip
 ```
 
 That zip extracts into:
@@ -214,11 +214,44 @@ Each file can look like this:
 {
   "profile": {
     "name": "AccountName",
-    "id": "account-uuid-here"
+    "id": "minecraft-java-profile-uuid-here"
   },
   "ygg": {
     "token": "access-token-here"
   }
+}
+```
+
+If your exporter gives you a refresh token too, add it. This lets the bot
+automatically get a fresh Minecraft Java access token when the old one expires:
+
+```json
+{
+  "profile": {
+    "name": "AccountName",
+    "id": "minecraft-java-profile-uuid-here"
+  },
+  "ygg": {
+    "token": "current-access-token-here"
+  },
+  "refreshToken": "microsoft-refresh-token-here"
+}
+```
+
+If the refresh token came from an MSAL/Azure app, add the client id:
+
+```json
+{
+  "profile": {
+    "name": "AccountName",
+    "id": "minecraft-java-profile-uuid-here"
+  },
+  "ygg": {
+    "token": "current-access-token-here"
+  },
+  "refreshToken": "microsoft-refresh-token-here",
+  "flow": "msal",
+  "clientId": "azure-client-id-here"
 }
 ```
 
@@ -232,7 +265,7 @@ Create `accounts.json` in the project folder:
     {
       "profile": {
         "name": "AccountName",
-        "id": "account-uuid-here"
+        "id": "minecraft-java-profile-uuid-here"
       },
       "ygg": {
         "token": "access-token-here"
@@ -245,6 +278,70 @@ Create `accounts.json` in the project folder:
 Use `accounts.json` if you want all accounts in one file.
 
 Use `cookies/` if you want one file per account.
+
+## Automatic Token Refresh
+
+Access tokens expire. Refresh tokens are what let the bot ask Microsoft for a
+new Minecraft Java access token automatically.
+
+The bot accepts refresh tokens in any of these places:
+
+```json
+{
+  "refreshToken": "refresh-token-here"
+}
+```
+
+```json
+{
+  "msa": {
+    "refreshToken": "refresh-token-here"
+  }
+}
+```
+
+```json
+{
+  "ygg": {
+    "token": "access-token-here",
+    "refreshToken": "refresh-token-here"
+  }
+}
+```
+
+```json
+{
+  "microsoft": {
+    "refreshToken": "refresh-token-here"
+  }
+}
+```
+
+```json
+{
+  "live": {
+    "refreshToken": "refresh-token-here"
+  }
+}
+```
+
+For normal Prismarine/Mineflayer live auth, you usually do not need extra
+settings. For MSAL/Azure refresh tokens, set:
+
+```json
+{
+  "flow": "msal",
+  "clientId": "azure-client-id-here"
+}
+```
+
+Refreshed tokens are cached inside:
+
+```txt
+profiles/session-refresh/
+```
+
+That folder is ignored by Git. Do not upload it.
 
 ## Step 6: Check If Accounts Load
 
@@ -259,7 +356,7 @@ This does not connect to the server. It only checks account loading.
 Good output looks like:
 
 ```txt
-INFO main dry {"accounts":[{"name":"AccountName","source":"./accounts.json","session":"[redacted]"}]}
+INFO main dry {"accounts":[{"name":"AccountName","source":"./accounts.json","session":true,"refresh":true}]}
 ```
 
 If it says:
@@ -390,7 +487,7 @@ Also check that your account file has:
 {
   "profile": {
     "name": "AccountName",
-    "id": "account-uuid-here"
+    "id": "minecraft-java-profile-uuid-here"
   },
   "ygg": {
     "token": "access-token-here"
@@ -413,11 +510,17 @@ Most common causes:
 Fix:
 
 1. Get a fresh session/account JSON file.
-2. Make sure `profile.name`, `profile.id`, and `ygg.token` belong to the same account.
-3. Run `npm run dry` again.
-4. Run `npm start`.
+2. Make sure `ygg.token` is a Minecraft Java access token.
+3. Make sure `profile.id` is the Minecraft Java profile UUID, not a Microsoft or Xbox account ID.
+4. Add `refreshToken` if your account exporter gives you one.
+5. The bot asks Minecraft Services for the real profile name and UUID before connecting. If the token is valid, it can fix a wrong name/UUID automatically.
+6. If a refresh token is available, the bot tries to get a fresh Minecraft Java token automatically.
+7. If it still says `session_token_rejected`, the token is expired, the refresh token is invalid, or the token is the wrong kind of token.
+8. Run `npm run dry` again.
+9. Run `npm start`.
 
-The bot cannot repair a rejected token. It needs a valid session file.
+The bot can repair a wrong local profile name/UUID when the token is valid. It
+can refresh an expired token only when a valid refresh token is present.
 
 ### autoEat says plugin_invalid
 

@@ -17,6 +17,7 @@ function normalizeAccount (record, source) {
   const profileId = compactUuid(record.uuid || record.profileId || record.selectedProfileId || profile?.id || record.id)
   const accessToken = text(record.accessToken || record.token || record.ygg?.token || record.session?.accessToken)
   const clientToken = text(record.clientToken || record.ygg?.clientToken || record.session?.clientToken)
+  const refresh = refreshFrom(record)
 
   if (!name) return null
 
@@ -27,20 +28,21 @@ function normalizeAccount (record, source) {
     auth: text(record.auth || record.session?.auth)
   }
 
-  if (accessToken && profileId) {
+  if ((accessToken || refresh) && (profileId || refresh)) {
     const selectedProfile = {
-      id: profileId,
+      id: profileId || '',
       name
     }
 
     account.session = {
-      accessToken,
+      accessToken: accessToken || '',
       selectedProfile,
       availableProfiles: [selectedProfile],
       type: text(record.session?.type || record.type) || 'mojang'
     }
 
     if (clientToken) account.session.clientToken = clientToken
+    if (refresh) account.session.refresh = refresh
   }
 
   return account
@@ -56,4 +58,46 @@ function text (value) {
 
 function compactUuid (value) {
   return value ? String(value).replace(/-/g, '').trim() : null
+}
+
+function refreshFrom (record) {
+  const msal = msalRefreshFrom(record)
+  if (msal) return msal
+
+  const token = text(
+    record.refreshToken ||
+    record.refresh_token ||
+    record.session?.refreshToken ||
+    record.session?.refresh_token ||
+    record.ygg?.refreshToken ||
+    record.ygg?.refresh_token ||
+    record.msa?.refreshToken ||
+    record.microsoft?.refreshToken ||
+    record.live?.refreshToken ||
+    record.token?.refresh_token
+  )
+
+  if (!token) return null
+
+  return {
+    token,
+    flow: text(record.authFlow || record.flow || record.session?.flow || record.msa?.flow || record.microsoft?.flow || record.live?.flow) || 'live',
+    authTitle: text(record.authTitle || record.clientId || record.session?.authTitle || record.session?.clientId || record.msa?.authTitle || record.msa?.clientId || record.microsoft?.authTitle || record.microsoft?.clientId || record.live?.authTitle || record.live?.clientId),
+    deviceType: text(record.deviceType || record.session?.deviceType || record.live?.deviceType)
+  }
+}
+
+function msalRefreshFrom (record) {
+  const cache = record.msal || record.microsoft?.msal || record.session?.msal || record
+  const tokens = cache?.RefreshToken
+  if (!tokens || typeof tokens !== 'object') return null
+
+  const token = Object.values(tokens).find(item => item?.secret && item?.client_id)
+  if (!token) return null
+
+  return {
+    token: token.secret,
+    flow: 'msal',
+    authTitle: token.client_id
+  }
 }

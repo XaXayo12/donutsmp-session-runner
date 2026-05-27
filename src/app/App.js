@@ -31,7 +31,8 @@ export class App {
         accounts: this.accounts.map(account => ({
           name: account.name,
           source: account.source,
-          session: Boolean(account.session)
+          session: Boolean(account.session),
+          refresh: Boolean(account.session?.refresh)
         }))
       })
       return
