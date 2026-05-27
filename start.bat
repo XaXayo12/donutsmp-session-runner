@@ -1,4 +1,4 @@
 @echo off
 cd /d "%~dp0"
-node src/main.js
+call npm start
 pause

@@ -57,10 +57,10 @@ The project needs these packages:
 
 ```txt
 mineflayer
-mineflayer-pathfinder
-mineflayer-auto-eat
-mineflayer-armor-manager
-mineflayer-tool
+mineflayer-pathfinder 2.4.5+
+mineflayer-auto-eat 5.0.3+
+mineflayer-armor-manager 2.0.1+
+mineflayer-tool 1.2.0+
 ```
 
 If you see an error like this:
@@ -174,6 +174,9 @@ Run:
 ```bash
 npm start
 ```
+
+`npm start` runs the syntax check first. If a JavaScript file is broken, the bot
+stops before trying to connect any account.
 
 On Windows, you can also double-click:
 
