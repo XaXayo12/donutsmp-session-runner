@@ -63,10 +63,16 @@ Open a terminal in the folder that contains `package.json`.
 Example on Windows:
 
 ```powershell
-cd "C:\Users\YourName\Downloads\token things"
+cd "C:\Users\YourName\Downloads\donutsmp-session-runner"
 ```
 
 If you run commands in the wrong folder, modules and config will not be found.
+
+If your extracted folder has a random name, rename it to:
+
+```txt
+donutsmp-session-runner
+```
 
 ## Step 3: Install Modules
 
