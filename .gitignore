@@ -1,0 +1,10 @@
+node_modules/
+profiles/
+accounts.json
+.env
+logs/**
+!logs/
+!logs/.gitkeep
+cookies/**
+!cookies/
+!cookies/.gitkeep

@@ -1,0 +1,73 @@
+{
+  "connection": {
+    "host": "127.0.0.1",
+    "port": 25565,
+    "version": "1.21.11",
+    "auth": "offline",
+    "brand": "vanilla",
+    "profilesFolder": "./profiles",
+    "checkTimeoutInterval": 30000,
+    "physicsEnabled": true,
+    "respawn": true,
+    "hideErrors": false,
+    "logErrors": false
+  },
+  "accounts": {
+    "cookiesDir": "./cookies",
+    "accountsFile": "./accounts.json",
+    "recursive": true,
+    "strict": false,
+    "maxFiles": 256
+  },
+  "runtime": {
+    "joinDelayMs": 3500,
+    "spawnTimeoutMs": 45000,
+    "maxReconnects": 0,
+    "reconnectBaseMs": 5000,
+    "reconnectMaxMs": 60000,
+    "autoInstall": true
+  },
+  "donut": {
+    "enabled": true,
+    "sendAfkCommand": true,
+    "spawnCommands": [
+      "/afk 30"
+    ],
+    "commandDelayMs": 2500,
+    "periodicCommands": [],
+    "periodicCommandIntervalMs": 600000
+  },
+  "antiAfk": {
+    "enabled": true,
+    "look": true,
+    "jump": true,
+    "sneak": true,
+    "walk": false,
+    "intervalMs": 18000,
+    "jitterMs": 9000
+  },
+  "plugins": {
+    "loadInternal": true,
+    "internalOverrides": {
+      "physics": true,
+      "velocity": true,
+      "ray_trace": true
+    },
+    "external": {
+      "pathfinder": true,
+      "autoEat": true,
+      "armorManager": true,
+      "tool": true
+    }
+  },
+  "features": {
+    "chatLog": true,
+    "autoEat": true,
+    "autoArmor": true,
+    "autoTool": true
+  },
+  "logging": {
+    "dir": "./logs",
+    "console": true
+  }
+}
