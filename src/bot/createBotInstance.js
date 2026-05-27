@@ -29,7 +29,7 @@ export function createOptions (account, config) {
     host: config.connection.host,
     port: config.connection.port,
     username: account.name,
-    auth: account.session ? 'mojang' : (account.auth || config.connection.auth),
+    auth: account.session ? sessionAuth(account) : (account.auth || config.connection.auth),
     version: config.connection.version || false,
     brand: config.connection.brand,
     profilesFolder: config.connection.profilesFolder,
@@ -44,8 +44,22 @@ export function createOptions (account, config) {
 
   if (account.session) {
     options.session = account.session
-    options.skipValidation = true
   }
 
   return options
+}
+
+function sessionAuth (account) {
+  return (client, options) => {
+    const session = account.session
+
+    client.session = session
+    client.username = session.selectedProfile?.name || account.name
+    options.username = client.username
+    options.haveCredentials = true
+    options.accessToken = session.accessToken
+
+    client.emit('session', session)
+    options.connect(client)
+  }
 }

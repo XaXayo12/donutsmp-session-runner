@@ -16,6 +16,7 @@ export class BotRunner {
     this.stopped = false
     this.connecting = false
     this.reconnects = 0
+    this.authRejected = false
   }
 
   async start () {
@@ -54,7 +55,10 @@ export class BotRunner {
       this.logger.info('spawn')
     }
     const onKicked = reason => this.logger.warn('kicked', { reason: stringify(reason) })
-    const onError = error => this.logger.error('bot_error', errorMeta(error))
+    const onError = error => {
+      if (isAuthRejected(error)) this.authRejected = true
+      this.logger.error('bot_error', errorMeta(error))
+    }
     const onDeath = () => this.logger.warn('death')
     const onEnd = reason => this.ended(reason)
 
@@ -86,6 +90,13 @@ export class BotRunner {
   async ended (reason) {
     await this.logger.warn('end', { reason: stringify(reason) })
     this.closeScope()
+    if (this.authRejected && stringify(reason) === 'encryptionLoginError') {
+      this.stopped = true
+      await this.logger.warn('auth_rejected_stop', {
+        message: 'The session token was rejected by the Minecraft session server. Use a fresh Minecraft Java access token/session file.'
+      })
+      return
+    }
     if (!this.stopped) await this.reconnect()
   }
 
@@ -138,4 +149,8 @@ function errorMeta (error) {
     message: error?.message || String(error),
     stack: error?.stack
   }
+}
+
+function isAuthRejected (error) {
+  return /ForbiddenOperationException|Invalid token|invalid token|Unauthorized/i.test(error?.message || String(error))
 }

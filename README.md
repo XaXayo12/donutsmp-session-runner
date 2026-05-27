@@ -109,6 +109,30 @@ Cannot find package 'mineflayer'
 
 you skipped `npm install` or ran it in the wrong folder.
 
+## Download Package
+
+The clean download is on the GitHub Releases page:
+
+```txt
+https://github.com/XaXayo12/donutsmp-session-runner/releases
+```
+
+Download:
+
+```txt
+donutsmp-session-runner-v1.0.1.zip
+```
+
+That zip extracts into:
+
+```txt
+donutsmp-session-runner/
+```
+
+This project is not published as an npm package because users need local config
+files and private account/session files. The release zip is the correct package
+for normal users.
+
 ## Step 4: Choose The Server IP, Port, And Version
 
 Open `config.json`.
@@ -373,6 +397,27 @@ Also check that your account file has:
   }
 }
 ```
+
+### ForbiddenOperationException or encryptionLoginError
+
+This means the server rejected the account session during online-mode login.
+
+Most common causes:
+
+- the token is expired
+- the token is not a Minecraft Java access token
+- the UUID does not match the token
+- the account does not own Java Edition
+- the account file came from the wrong exporter/tool
+
+Fix:
+
+1. Get a fresh session/account JSON file.
+2. Make sure `profile.name`, `profile.id`, and `ygg.token` belong to the same account.
+3. Run `npm run dry` again.
+4. Run `npm start`.
+
+The bot cannot repair a rejected token. It needs a valid session file.
 
 ### autoEat says plugin_invalid
 

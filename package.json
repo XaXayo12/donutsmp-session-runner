@@ -1,15 +1,46 @@
 {
   "name": "donutsmp-session-runner",
-  "version": "1.0.0",
+  "version": "1.0.1",
+  "description": "A personal-use Mineflayer session runner for DonutSMP AFK and playtime automation.",
   "private": true,
   "type": "module",
   "main": "src/main.js",
+  "author": "XaXayo12 <lolptfr800@gmail.com>",
+  "license": "SEE LICENSE IN LICENSE",
+  "homepage": "https://github.com/XaXayo12/donutsmp-session-runner#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/XaXayo12/donutsmp-session-runner.git"
+  },
+  "bugs": {
+    "url": "https://github.com/XaXayo12/donutsmp-session-runner/issues"
+  },
+  "keywords": [
+    "minecraft",
+    "mineflayer",
+    "donutsmp",
+    "afk",
+    "nodejs",
+    "session-runner"
+  ],
+  "files": [
+    "src/",
+    "scripts/",
+    "cookies/.gitkeep",
+    "logs/.gitkeep",
+    "config.json",
+    "install.bat",
+    "start.bat",
+    "README.md",
+    "LICENSE"
+  ],
   "scripts": {
     "prestart": "npm run check",
     "start": "node src/main.js",
     "predry": "npm run check",
     "dry": "node src/main.js --dry",
-    "check": "node scripts/check.js"
+    "check": "node scripts/check.js",
+    "pack:dry": "npm pack --dry-run"
   },
   "engines": {
     "node": ">=22"
