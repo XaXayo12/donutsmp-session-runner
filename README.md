@@ -1,91 +1,128 @@
 # DonutSMP Session Runner
 
-DonutSMP Session Runner is a Node.js Mineflayer bot runner. It loads Minecraft
-session/account JSON files, starts one bot per account, and can run DonutSMP AFK
-commands plus small anti-AFK actions.
+DonutSMP Session Runner starts Minecraft bots with Mineflayer. It reads your own
+account/session JSON files, connects one bot per account, can send `/afk 30`,
+and can run simple anti-AFK actions.
 
-This project is not open source for resale. See [LICENSE](LICENSE).
+This is a personal-use project. You may not sell it, resell it, rebrand it, or
+sell access to it. Read [LICENSE](LICENSE).
 
-## What It Does
+## Read This First
 
-- Loads accounts from `cookies/*.json` or `accounts.json`.
-- Starts one Mineflayer bot for each valid account.
-- Connects the bots to the server configured in `config.json`.
-- Can send `/afk 30` after spawn when DonutSMP mode is enabled.
-- Can do anti-AFK actions: look, jump, sneak, and optional walking.
-- Can load Mineflayer helper plugins for pathfinding, auto eat, armor, and tools.
-- Saves logs in `logs/`, one file per account plus `main.log`.
-- Redacts token-like fields from structured log output.
-- Can auto-run `npm install` at startup when accounts exist and dependencies are missing.
+- Only use accounts you own or are allowed to use.
+- Do not send your token/session files to random people.
+- Do not upload `cookies/*.json` or `accounts.json`.
+- A token/session file can act like account access.
+- Use this only on servers where this kind of automation is allowed.
 
-## Requirements
+## What The Bot Does
 
-Install this first:
+The app does this:
 
-- Node.js 22 or newer
-- npm, which comes with Node.js
+1. Opens `config.json`.
+2. Looks for account files in `cookies/`.
+3. If `cookies/` is empty, it looks for `accounts.json`.
+4. Checks which accounts are valid.
+5. Starts one Mineflayer bot per account.
+6. Loads optional plugins: pathfinder, auto eat, armor manager, and tool.
+7. Runs DonutSMP commands like `/afk 30` if enabled.
+8. Runs anti-AFK actions if enabled.
+9. Writes logs in `logs/`.
 
-Check Node.js:
+## Step 1: Install Node.js
+
+Install Node.js 22 or newer.
+
+Check it:
 
 ```bash
 node -v
 ```
 
-If it says `v22` or higher, you are fine.
+Good:
 
-## Install
+```txt
+v22.0.0
+v23.0.0
+v24.0.0
+```
 
-Open a terminal in the project folder and run:
+Bad:
+
+```txt
+v18.x
+v20.x
+```
+
+This project uses a Mineflayer build that depends on packages requiring Node 22.
+
+## Step 2: Open The Project Folder
+
+Open a terminal in the folder that contains `package.json`.
+
+Example on Windows:
+
+```powershell
+cd "C:\Users\YourName\Downloads\token things"
+```
+
+If you run commands in the wrong folder, modules and config will not be found.
+
+## Step 3: Install Modules
+
+Run:
 
 ```bash
 npm install
 ```
 
-On Windows, you can also double-click:
+Windows users can also double-click:
 
 ```txt
 install.bat
 ```
 
-That downloads all modules from `package.json`.
+Do not download modules manually. `npm install` reads `package.json` and installs
+everything.
 
-## Required Modules
-
-You do not manually download modules one by one. Run `npm install`.
-
-The project needs these packages:
+The important modules are:
 
 ```txt
 mineflayer
-mineflayer-pathfinder 2.4.5+
-mineflayer-auto-eat 5.0.3+
-mineflayer-armor-manager 2.0.1+
-mineflayer-tool 1.2.0+
+mineflayer-pathfinder
+mineflayer-auto-eat
+mineflayer-armor-manager
+mineflayer-tool
 ```
 
-If you see an error like this:
+If you see this:
 
 ```txt
 Cannot find package 'mineflayer'
 ```
 
-it means the modules are not installed in that folder. Fix it with:
+you skipped `npm install` or ran it in the wrong folder.
 
-```bash
-npm install
-```
-
-Then start again:
-
-```bash
-npm start
-```
-
-## Configure The Server
+## Step 4: Choose The Server IP, Port, And Version
 
 Open `config.json`.
 
-The server settings are in `connection`:
+Find this part:
+
+```json
+{
+  "connection": {
+    "host": "127.0.0.1",
+    "port": 25565,
+    "version": "1.21.11",
+    "auth": "offline"
+  }
+}
+```
+
+### For DonutSMP
+
+Use:
 
 ```json
 {
@@ -98,19 +135,41 @@ The server settings are in `connection`:
 }
 ```
 
-What each setting means:
+### For another server
 
-- `host`: server address
-- `port`: server port, usually `25565`
-- `version`: Minecraft version/protocol Mineflayer should use
-- `auth`: default auth mode, unless an account file sets its own auth mode
+Change only these:
 
-The included config may use `127.0.0.1` for local testing. Change it to your real
-server address before sharing or running on a real server.
+```json
+{
+  "connection": {
+    "host": "server-ip-here",
+    "port": 25565,
+    "version": "minecraft-version-here"
+  }
+}
+```
 
-## Add Accounts
+What the words mean:
 
-Put account/session files inside the `cookies` folder:
+- `host`: the server IP or domain, like `donutsmp.net`
+- `port`: the server port, usually `25565`
+- `version`: the Minecraft version the server uses
+- `auth`: the fallback auth mode when an account file does not provide a session
+
+If you do not know the port, try `25565`.
+
+If you do not know the version, check the server list in Minecraft or the server
+Discord. The version in `config.json` should match the version the server accepts.
+
+## Step 5: Add Your Accounts
+
+You have two options.
+
+### Option A: Use The Cookies Folder
+
+Put JSON files in `cookies/`.
+
+Example:
 
 ```txt
 cookies/
@@ -119,7 +178,7 @@ cookies/
   account3.json
 ```
 
-Example account file:
+Each file can look like this:
 
 ```json
 {
@@ -133,7 +192,9 @@ Example account file:
 }
 ```
 
-You can also use one `accounts.json` file:
+### Option B: Use accounts.json
+
+Create `accounts.json` in the project folder:
 
 ```json
 {
@@ -151,13 +212,11 @@ You can also use one `accounts.json` file:
 }
 ```
 
-The loader also understands common alternatives like `username`, `name`,
-`profileName`, `accessToken`, `token`, `session.accessToken`, and
-`session.selectedProfile`.
+Use `accounts.json` if you want all accounts in one file.
 
-Never upload real account/session files. A token can act like account access.
+Use `cookies/` if you want one file per account.
 
-## Test Account Loading
+## Step 6: Check If Accounts Load
 
 Run:
 
@@ -165,9 +224,31 @@ Run:
 npm run dry
 ```
 
-This only checks account loading. It does not start the bots.
+This does not connect to the server. It only checks account loading.
 
-## Start
+Good output looks like:
+
+```txt
+INFO main dry {"accounts":[{"name":"AccountName","source":"./accounts.json","session":"[redacted]"}]}
+```
+
+If it says:
+
+```txt
+WARN main no_accounts
+```
+
+then no valid accounts were found.
+
+Check:
+
+- your file is named `accounts.json`, or your files are inside `cookies/`
+- your JSON is valid
+- the account name is 3 to 16 characters
+- the UUID is real and not empty
+- the token field exists
+
+## Step 7: Start The Bots
 
 Run:
 
@@ -175,18 +256,18 @@ Run:
 npm start
 ```
 
-`npm start` runs the syntax check first. If a JavaScript file is broken, the bot
-stops before trying to connect any account.
-
-On Windows, you can also double-click:
+Windows users can also double-click:
 
 ```txt
 start.bat
 ```
 
-## DonutSMP AFK Settings
+`npm start` runs a syntax check first. If the JavaScript is broken, it stops
+before connecting accounts.
 
-This part controls the DonutSMP command behavior:
+## DonutSMP AFK Setup
+
+In `config.json`, this controls `/afk 30`:
 
 ```json
 {
@@ -198,9 +279,9 @@ This part controls the DonutSMP command behavior:
 }
 ```
 
-Keep that enabled if you want the bot to run `/afk 30` after it spawns.
+Keep it like that if you want the bot to send `/afk 30`.
 
-To count normal playtime without sending `/afk 30`, use:
+If you want normal playtime without `/afk 30`, use:
 
 ```json
 {
@@ -212,7 +293,9 @@ To count normal playtime without sending `/afk 30`, use:
 }
 ```
 
-## Anti-AFK Settings
+## Anti-AFK Setup
+
+In `config.json`:
 
 ```json
 {
@@ -228,41 +311,20 @@ To count normal playtime without sending `/afk 30`, use:
 }
 ```
 
-Simple meaning:
+Meaning:
 
-- `look`: look around a little
+- `look`: look around
 - `jump`: jump sometimes
 - `sneak`: sneak sometimes
 - `walk`: walk forward sometimes
 - `intervalMs`: base delay between actions
 - `jitterMs`: random extra delay
 
-## Dependency Auto-Install
-
-`runtime.autoInstall` controls startup dependency repair:
-
-```json
-{
-  "runtime": {
-    "autoInstall": true
-  }
-}
-```
-
-When this is `true`, the app tries to run `npm install` if accounts exist and a
-required Mineflayer package is missing.
-
-Even with this enabled, the cleanest setup is still:
-
-```bash
-npm install
-```
-
-before running the bot.
+Leave `walk` as `false` unless you know what you are doing.
 
 ## Logs
 
-Logs are saved in `logs/`.
+Logs go in `logs/`.
 
 Example:
 
@@ -272,53 +334,142 @@ logs/
   AccountName.log
 ```
 
-Log files are ignored by Git.
+Logs are ignored by Git.
 
-## Safe Files And Secret Files
+## Common Problems
 
-Do not upload:
+### Cannot find package 'mineflayer'
 
-- `cookies/*.json`
-- `accounts.json`
-- `.env`
-- `profiles/`
-- `logs/`
-
-The `.gitignore` is set up to keep those files out of the repo.
-
-## Useful Commands
+Run:
 
 ```bash
 npm install
+```
+
+Make sure you are in the folder with `package.json`.
+
+### Microsoft asks for a browser code
+
+If you added token/session files and Microsoft still asks for a code, update the
+project. Session files should be used directly and should not force a new
+Microsoft device login.
+
+Also check that your account file has:
+
+```json
+{
+  "profile": {
+    "name": "AccountName",
+    "id": "account-uuid-here"
+  },
+  "ygg": {
+    "token": "access-token-here"
+  }
+}
+```
+
+### autoEat says plugin_invalid
+
+Update the project and run:
+
+```bash
+npm install
+```
+
+The project uses `mineflayer-auto-eat` through its `loader` export.
+
+### no_accounts
+
+The app did not find any valid accounts.
+
+Fix:
+
+```txt
+cookies/account1.json
+```
+
+or:
+
+```txt
+accounts.json
+```
+
+Then run:
+
+```bash
 npm run dry
+```
+
+### Wrong server version
+
+Change:
+
+```json
+{
+  "connection": {
+    "version": "1.21.11"
+  }
+}
+```
+
+Use the version the server accepts.
+
+## Useful Commands
+
+Install:
+
+```bash
+npm install
+```
+
+Check accounts:
+
+```bash
+npm run dry
+```
+
+Start:
+
+```bash
 npm start
+```
+
+Check JavaScript syntax:
+
+```bash
 npm run check
 ```
 
-## Quick Reply For Module Errors
-
-Send this to someone who gets a module error:
+## What To Send Someone Who Has A Module Error
 
 ```txt
-You do not need to download modules manually. Open the project folder in a terminal and run:
+Open the project folder in a terminal and run:
 
 npm install
 
-That installs mineflayer and the other required packages from package.json.
-After that, run:
+Do not download modules one by one. npm install reads package.json and installs everything.
+
+Then test:
 
 npm run dry
+
+Then start:
+
 npm start
 
-If it says "Cannot find package 'mineflayer'", you skipped npm install or ran it in the wrong folder.
+If it says "Cannot find package 'mineflayer'", you are either in the wrong folder or you skipped npm install.
 ```
 
-If Microsoft shows a browser code even though you added token/session files,
-update the project. Session files are meant to be used directly; they should not
-force a new Microsoft device login.
+## Secret Files
 
-## License
+Never upload these:
 
-This project is released under a custom personal-use license. You may use it for
-personal/non-commercial use, but you may not sell it, resell it, rebrand it,
-rent access to it, or redistribute paid copies. See [LICENSE](LICENSE).
+```txt
+cookies/*.json
+accounts.json
+.env
+profiles/
+logs/
+```
+
+The `.gitignore` is set up to keep them out of GitHub.
