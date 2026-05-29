@@ -3,6 +3,7 @@ import path from 'node:path'
 import crypto from 'node:crypto'
 import { createRequire } from 'node:module'
 import { internalPluginOverrides } from '../plugins/internalPluginOverrides.js'
+import { createProxyConnect, resolveProxyConfig } from '../network/proxy.js'
 
 const require = createRequire(import.meta.url)
 
@@ -31,6 +32,7 @@ async function loadMineflayer () {
 }
 
 export function createOptions (account, config) {
+  const proxy = resolveProxyConfig(account, config)
   const options = {
     host: config.connection.host,
     port: config.connection.port,
@@ -46,6 +48,13 @@ export function createOptions (account, config) {
     logErrors: config.connection.logErrors,
     loadInternalPlugins: config.plugins.loadInternal,
     plugins: internalPluginOverrides(config.plugins.internalOverrides)
+  }
+
+  if (proxy) {
+    options.connect = createProxyConnect(proxy, {
+      host: config.connection.host,
+      port: config.connection.port
+    })
   }
 
   if (account.session) {

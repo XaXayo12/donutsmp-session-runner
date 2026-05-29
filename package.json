@@ -1,6 +1,6 @@
 {
   "name": "donutsmp-session-runner",
-  "version": "1.0.2",
+  "version": "1.1.0",
   "description": "A personal-use Mineflayer session runner for DonutSMP AFK and playtime automation.",
   "private": true,
   "type": "module",
@@ -39,6 +39,7 @@
     "start": "node src/main.js",
     "predry": "npm run check",
     "dry": "node src/main.js --dry",
+    "test": "node test/run.js",
     "check": "node scripts/check.js",
     "pack:dry": "npm pack --dry-run"
   },
@@ -51,6 +52,7 @@
     "mineflayer-auto-eat": "^5.0.3",
     "mineflayer-pathfinder": "^2.4.5",
     "mineflayer-tool": "^1.2.0",
-    "prismarine-auth": "^3.1.1"
+    "prismarine-auth": "^3.1.1",
+    "socks": "^2.8.9"
   }
 }

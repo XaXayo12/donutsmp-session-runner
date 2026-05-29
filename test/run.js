@@ -1,0 +1,5 @@
+import './config.test.js'
+import './proxy.test.js'
+import './humanMovement.test.js'
+import './statusLog.test.js'
+import './donut.test.js'

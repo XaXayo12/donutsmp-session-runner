@@ -1,4 +1,5 @@
 import { createBotInstance } from './createBotInstance.js'
+import { effectiveConfig } from './effectiveConfig.js'
 import { attachFeatures } from '../features/attachFeatures.js'
 import { loadExternalPlugins } from '../plugins/loadExternalPlugins.js'
 import { createLogger } from '../system/logger.js'
@@ -9,7 +10,7 @@ import { delay } from '../utils/time.js'
 export class BotRunner {
   constructor (account, config) {
     this.account = account
-    this.config = config
+    this.config = effectiveConfig(config, account)
     this.logger = null
     this.bot = null
     this.scope = null

@@ -18,6 +18,7 @@ function normalizeAccount (record, source) {
   const accessToken = text(record.accessToken || record.token || record.ygg?.token || record.session?.accessToken)
   const clientToken = text(record.clientToken || record.ygg?.clientToken || record.session?.clientToken)
   const refresh = refreshFrom(record)
+  const proxy = proxyFrom(record)
 
   if (!name) return null
 
@@ -27,6 +28,11 @@ function normalizeAccount (record, source) {
     source,
     auth: text(record.auth || record.session?.auth)
   }
+
+  if (proxy) account.proxy = proxy
+
+  const overrides = overridesFrom(record)
+  if (overrides) account.overrides = overrides
 
   if ((accessToken || refresh) && (profileId || refresh)) {
     const selectedProfile = {
@@ -48,12 +54,66 @@ function normalizeAccount (record, source) {
   return account
 }
 
+function proxyFrom (record) {
+  const proxy = record.proxy ?? record.network?.proxy ?? record.config?.network?.proxy
+  if (!proxy) return null
+  if (typeof proxy === 'string') return text(proxy)
+  if (typeof proxy === 'object') return clone(proxy)
+  return null
+}
+
+function overridesFrom (record) {
+  const output = {}
+
+  mergePlain(output, record.config)
+
+  for (const section of ['features', 'donut', 'antiAfk', 'humanMovement', 'statusLog']) {
+    if (plain(record[section])) output[section] = clone(record[section])
+  }
+
+  if (record.chatLog !== undefined) {
+    output.features ||= {}
+    output.features.chatLog = Boolean(record.chatLog)
+  }
+
+  if (record.disableChatLog !== undefined) {
+    output.features ||= {}
+    output.features.chatLog = !record.disableChatLog
+  }
+
+  if (Array.isArray(record.spawnCommands)) {
+    output.donut ||= {}
+    output.donut.spawnCommands = record.spawnCommands
+  }
+
+  return Object.keys(output).length > 0 ? output : null
+}
+
+function mergePlain (target, source) {
+  if (!plain(source)) return target
+
+  for (const [key, value] of Object.entries(source)) {
+    if (!['features', 'donut', 'antiAfk', 'humanMovement', 'statusLog'].includes(key)) continue
+    target[key] = plain(value) ? clone(value) : value
+  }
+
+  return target
+}
+
 function profileFrom (record) {
   return record.profile || record.selectedProfile || record.session?.selectedProfile || record.ygg?.selectedProfile || record.minecraftProfile || null
 }
 
 function text (value) {
   return typeof value === 'string' && value.trim() ? value.trim() : null
+}
+
+function plain (value) {
+  return value !== null && typeof value === 'object' && !Array.isArray(value)
+}
+
+function clone (value) {
+  return JSON.parse(JSON.stringify(value))
 }
 
 function compactUuid (value) {

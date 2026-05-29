@@ -1,35 +1,25 @@
 # DonutSMP Session Runner
 
-DonutSMP Session Runner starts Minecraft bots with Mineflayer. It reads your own
-account/session JSON files, connects one bot per account, can send `/afk 30`,
-and can run simple anti-AFK actions.
+Mineflayer runner for starting several Minecraft accounts from local session JSON
+files. It can join a server, run configurable commands, move inside a small AFK
+area, log chat/status, and use a SOCKS proxy per bot.
 
-This is a personal-use project. You may not sell it, resell it, rebrand it, or
-sell access to it. Read [LICENSE](LICENSE).
+This project is for personal use on servers where automation is allowed. Do not
+sell it, resell it, rebrand it, or upload private account/session files.
 
-## Read This First
+## What Is New In 1.1.0
 
-- Only use accounts you own or are allowed to use.
-- Do not send your token/session files to random people.
-- Do not upload `cookies/*.json` or `accounts.json`.
-- A token/session file can act like account access.
-- Use this only on servers where this kind of automation is allowed.
+- Human movement system with random walk bursts, sprint, strafe, jump, sneak,
+  smooth head turns, idle pauses, and radius limits.
+- Movement before spawn commands, configurable in seconds.
+- Per-bot config overrides.
+- Per-bot SOCKS4/SOCKS5 proxy support.
+- Per-bot chat log on/off.
+- Configurable command mode: send all commands or pick one random command.
+- Periodic status log with health, food, game mode, dimension, and position.
+- Built-in tests with `npm test`.
 
-## What The Bot Does
-
-The app does this:
-
-1. Opens `config.json`.
-2. Looks for account files in `cookies/`.
-3. If `cookies/` is empty, it looks for `accounts.json`.
-4. Checks which accounts are valid.
-5. Starts one Mineflayer bot per account.
-6. Loads optional plugins: pathfinder, auto eat, armor manager, and tool.
-7. Runs DonutSMP commands like `/afk 30` if enabled.
-8. Runs anti-AFK actions if enabled.
-9. Writes logs in `logs/`.
-
-## Step 1: Install Node.js
+## Install
 
 Install Node.js 22 or newer.
 
@@ -39,44 +29,23 @@ Check it:
 node -v
 ```
 
-Good:
+Good examples:
 
 ```txt
-v22.0.0
-v23.0.0
-v24.0.0
+v22.x
+v23.x
+v24.x
 ```
 
-Bad:
+Open this project folder, the folder that contains `package.json`.
 
-```txt
-v18.x
-v20.x
-```
-
-This project uses a Mineflayer build that depends on packages requiring Node 22.
-
-## Step 2: Open The Project Folder
-
-Open a terminal in the folder that contains `package.json`.
-
-Example on Windows:
+Windows example:
 
 ```powershell
 cd "C:\Users\YourName\Downloads\donutsmp-session-runner"
 ```
 
-If you run commands in the wrong folder, modules and config will not be found.
-
-If your extracted folder has a random name, rename it to:
-
-```txt
-donutsmp-session-runner
-```
-
-## Step 3: Install Modules
-
-Run:
+Install modules:
 
 ```bash
 npm install
@@ -88,296 +57,15 @@ Windows users can also double-click:
 install.bat
 ```
 
-Do not download modules manually. `npm install` reads `package.json` and installs
-everything.
+## Start
 
-The important modules are:
-
-```txt
-mineflayer
-mineflayer-pathfinder
-mineflayer-auto-eat
-mineflayer-armor-manager
-mineflayer-tool
-```
-
-If you see this:
-
-```txt
-Cannot find package 'mineflayer'
-```
-
-you skipped `npm install` or ran it in the wrong folder.
-
-## Download Package
-
-The clean download is on the GitHub Releases page:
-
-```txt
-https://github.com/XaXayo12/donutsmp-session-runner/releases
-```
-
-Download:
-
-```txt
-donutsmp-session-runner-v1.0.2.zip
-```
-
-That zip extracts into:
-
-```txt
-donutsmp-session-runner/
-```
-
-This project is not published as an npm package because users need local config
-files and private account/session files. The release zip is the correct package
-for normal users.
-
-## Step 4: Choose The Server IP, Port, And Version
-
-Open `config.json`.
-
-Find this part:
-
-```json
-{
-  "connection": {
-    "host": "127.0.0.1",
-    "port": 25565,
-    "version": "1.21.11",
-    "auth": "offline"
-  }
-}
-```
-
-### For DonutSMP
-
-Use:
-
-```json
-{
-  "connection": {
-    "host": "donutsmp.net",
-    "port": 25565,
-    "version": "1.21.11",
-    "auth": "offline"
-  }
-}
-```
-
-### For another server
-
-Change only these:
-
-```json
-{
-  "connection": {
-    "host": "server-ip-here",
-    "port": 25565,
-    "version": "minecraft-version-here"
-  }
-}
-```
-
-What the words mean:
-
-- `host`: the server IP or domain, like `donutsmp.net`
-- `port`: the server port, usually `25565`
-- `version`: the Minecraft version the server uses
-- `auth`: the fallback auth mode when an account file does not provide a session
-
-If you do not know the port, try `25565`.
-
-If you do not know the version, check the server list in Minecraft or the server
-Discord. The version in `config.json` should match the version the server accepts.
-
-## Step 5: Add Your Accounts
-
-You have two options.
-
-### Option A: Use The Cookies Folder
-
-Put JSON files in `cookies/`.
-
-Example:
-
-```txt
-cookies/
-  account1.json
-  account2.json
-  account3.json
-```
-
-Each file can look like this:
-
-```json
-{
-  "profile": {
-    "name": "AccountName",
-    "id": "minecraft-java-profile-uuid-here"
-  },
-  "ygg": {
-    "token": "access-token-here"
-  }
-}
-```
-
-If your exporter gives you a refresh token too, add it. This lets the bot
-automatically get a fresh Minecraft Java access token when the old one expires:
-
-```json
-{
-  "profile": {
-    "name": "AccountName",
-    "id": "minecraft-java-profile-uuid-here"
-  },
-  "ygg": {
-    "token": "current-access-token-here"
-  },
-  "refreshToken": "microsoft-refresh-token-here"
-}
-```
-
-If the refresh token came from an MSAL/Azure app, add the client id:
-
-```json
-{
-  "profile": {
-    "name": "AccountName",
-    "id": "minecraft-java-profile-uuid-here"
-  },
-  "ygg": {
-    "token": "current-access-token-here"
-  },
-  "refreshToken": "microsoft-refresh-token-here",
-  "flow": "msal",
-  "clientId": "azure-client-id-here"
-}
-```
-
-### Option B: Use accounts.json
-
-Create `accounts.json` in the project folder:
-
-```json
-{
-  "accounts": [
-    {
-      "profile": {
-        "name": "AccountName",
-        "id": "minecraft-java-profile-uuid-here"
-      },
-      "ygg": {
-        "token": "access-token-here"
-      }
-    }
-  ]
-}
-```
-
-Use `accounts.json` if you want all accounts in one file.
-
-Use `cookies/` if you want one file per account.
-
-## Automatic Token Refresh
-
-Access tokens expire. Refresh tokens are what let the bot ask Microsoft for a
-new Minecraft Java access token automatically.
-
-The bot accepts refresh tokens in any of these places:
-
-```json
-{
-  "refreshToken": "refresh-token-here"
-}
-```
-
-```json
-{
-  "msa": {
-    "refreshToken": "refresh-token-here"
-  }
-}
-```
-
-```json
-{
-  "ygg": {
-    "token": "access-token-here",
-    "refreshToken": "refresh-token-here"
-  }
-}
-```
-
-```json
-{
-  "microsoft": {
-    "refreshToken": "refresh-token-here"
-  }
-}
-```
-
-```json
-{
-  "live": {
-    "refreshToken": "refresh-token-here"
-  }
-}
-```
-
-For normal Prismarine/Mineflayer live auth, you usually do not need extra
-settings. For MSAL/Azure refresh tokens, set:
-
-```json
-{
-  "flow": "msal",
-  "clientId": "azure-client-id-here"
-}
-```
-
-Refreshed tokens are cached inside:
-
-```txt
-profiles/session-refresh/
-```
-
-That folder is ignored by Git. Do not upload it.
-
-## Step 6: Check If Accounts Load
-
-Run:
+First check that accounts load:
 
 ```bash
 npm run dry
 ```
 
-This does not connect to the server. It only checks account loading.
-
-Good output looks like:
-
-```txt
-INFO main dry {"accounts":[{"name":"AccountName","source":"./accounts.json","session":true,"refresh":true}]}
-```
-
-If it says:
-
-```txt
-WARN main no_accounts
-```
-
-then no valid accounts were found.
-
-Check:
-
-- your file is named `accounts.json`, or your files are inside `cookies/`
-- your JSON is valid
-- the account name is 3 to 16 characters
-- the UUID is real and not empty
-- the token field exists
-
-## Step 7: Start The Bots
-
-Run:
+Start the bots:
 
 ```bash
 npm start
@@ -389,40 +77,295 @@ Windows users can also double-click:
 start.bat
 ```
 
-`npm start` runs a syntax check first. If the JavaScript is broken, it stops
-before connecting accounts.
+## Files You Edit
 
-## DonutSMP AFK Setup
+Most users edit only these:
 
-In `config.json`, this controls `/afk 30`:
+```txt
+config.json
+cookies/*.json
+accounts.json
+```
+
+Never upload these:
+
+```txt
+cookies/*.json
+accounts.json
+profiles/
+logs/
+.env
+```
+
+## Server Config
+
+Open `config.json`.
+
+```json
+{
+  "connection": {
+    "host": "donutsmp.net",
+    "port": 25565,
+    "version": "1.21.11",
+    "auth": "offline",
+    "physicsEnabled": true
+  }
+}
+```
+
+Meaning:
+
+- `host`: server IP or domain.
+- `port`: server port, usually `25565`.
+- `version`: Minecraft version accepted by the server.
+- `auth`: fallback auth mode when an account file has no session.
+- `physicsEnabled`: must stay `true` for normal Mineflayer movement.
+
+## Add Accounts
+
+### Option A: One File Per Account
+
+Put JSON files inside `cookies/`.
+
+```txt
+cookies/
+  bot1.json
+  bot2.json
+```
+
+Example:
+
+```json
+{
+  "profile": {
+    "name": "AccountName",
+    "id": "minecraft-java-profile-uuid-here"
+  },
+  "ygg": {
+    "token": "minecraft-java-access-token-here"
+  },
+  "refreshToken": "optional-microsoft-refresh-token-here"
+}
+```
+
+### Option B: All Accounts In One File
+
+Create `accounts.json`:
+
+```json
+{
+  "accounts": [
+    {
+      "profile": {
+        "name": "AccountName",
+        "id": "minecraft-java-profile-uuid-here"
+      },
+      "ygg": {
+        "token": "minecraft-java-access-token-here"
+      }
+    }
+  ]
+}
+```
+
+## Per-Bot Config
+
+Each account can override global config.
+
+Example:
+
+```json
+{
+  "profile": {
+    "name": "BotOne",
+    "id": "minecraft-java-profile-uuid-here"
+  },
+  "ygg": {
+    "token": "minecraft-java-access-token-here"
+  },
+  "proxy": "proxyOne",
+  "features": {
+    "chatLog": false,
+    "statusLog": true
+  },
+  "donut": {
+    "spawnCommands": ["/afk 30"],
+    "commandMode": "all",
+    "preCommandMovement": {
+      "enabled": true,
+      "seconds": 5
+    }
+  },
+  "humanMovement": {
+    "enabled": true,
+    "radiusBlocks": 5,
+    "sprintChance": 0.45
+  }
+}
+```
+
+Shortcut to disable chat log on one bot:
+
+```json
+{
+  "name": "BotOne",
+  "disableChatLog": true
+}
+```
+
+## Proxy Config
+
+The proxy is for the Minecraft server TCP connection.
+
+In `config.json`:
+
+```json
+{
+  "network": {
+    "proxy": null,
+    "proxies": {
+      "proxyOne": {
+        "protocol": "socks5",
+        "host": "127.0.0.1",
+        "port": 1080,
+        "username": "",
+        "password": ""
+      }
+    }
+  }
+}
+```
+
+Use it on one account:
+
+```json
+{
+  "name": "BotOne",
+  "proxy": "proxyOne"
+}
+```
+
+Two bots can use the same proxy name. You can also put the proxy URL directly:
+
+```json
+{
+  "name": "BotOne",
+  "proxy": "socks5://user:pass@127.0.0.1:1080"
+}
+```
+
+Supported:
+
+- `socks4`
+- `socks5`
+- optional username/password
+
+## Commands
+
+Spawn commands are in `donut.spawnCommands`.
+
+Default:
 
 ```json
 {
   "donut": {
     "enabled": true,
     "sendAfkCommand": true,
-    "spawnCommands": ["/afk 30"]
+    "spawnCommands": ["/afk 30"],
+    "commandMode": "all",
+    "commandDelayMs": 2500,
+    "commandJitterMs": 1500
   }
 }
 ```
 
-Keep it like that if you want the bot to send `/afk 30`.
+Meaning:
 
-If you want normal playtime without `/afk 30`, use:
+- `sendAfkCommand`: if `false`, spawn commands are not sent.
+- `spawnCommands`: commands sent after spawn.
+- `commandMode`: `all` sends every command, `randomOne` picks one command.
+- `commandDelayMs`: base delay before command send.
+- `commandJitterMs`: extra random delay.
+
+Mineflayer sends commands with `bot.chat("/command")`. There is no real Minecraft
+GUI chat window in Mineflayer, so the stable way is to send the command through
+the normal chat API.
+
+## Movement Before Commands
+
+Before commands are sent, the bot can move for a few seconds.
 
 ```json
 {
   "donut": {
-    "enabled": true,
-    "sendAfkCommand": false,
-    "spawnCommands": []
+    "preCommandMovement": {
+      "enabled": true,
+      "seconds": 5
+    }
   }
 }
 ```
 
-## Anti-AFK Setup
+Set `enabled` to `false` to disable it.
 
-In `config.json`:
+## Human Movement
+
+The movement system uses Mineflayer controls and physics. It does not write
+custom spoofed packets. Mineflayer and minecraft-protocol still handle movement
+packets normally.
+
+```json
+{
+  "humanMovement": {
+    "enabled": true,
+    "look": true,
+    "move": true,
+    "sprint": true,
+    "jump": true,
+    "sneak": true,
+    "radiusBlocks": 4,
+    "intervalMs": 1200,
+    "jitterMs": 1200,
+    "burstMinMs": 2500,
+    "burstMaxMs": 8000,
+    "stepMinMs": 450,
+    "stepMaxMs": 1800,
+    "stepPauseMinMs": 120,
+    "stepPauseMaxMs": 700,
+    "idleChance": 0.14,
+    "sprintChance": 0.38,
+    "strafeChance": 0.42,
+    "jumpChance": 0.12,
+    "sneakChance": 0.06,
+    "turnMinRadians": 0.2,
+    "turnMaxRadians": 1.15,
+    "pitchJitterRadians": 0.16,
+    "maxPitch": 0.75
+  }
+}
+```
+
+Simple meanings:
+
+- `radiusBlocks`: how far the bot tries to stay from its spawn point.
+- `intervalMs`: base delay between movement bursts.
+- `jitterMs`: random extra delay.
+- `burstMinMs` / `burstMaxMs`: how long one movement burst lasts.
+- `stepMinMs` / `stepMaxMs`: how long one small movement step lasts.
+- `idleChance`: chance to pause instead of moving.
+- `sprintChance`: chance to sprint during a step.
+- `strafeChance`: chance to move left/right while going forward.
+- `jumpChance`: chance to jump.
+- `sneakChance`: chance to sneak when not sprinting.
+- `turnMinRadians` / `turnMaxRadians`: turn size.
+- `pitchJitterRadians`: small up/down head movement.
+- `maxPitch`: maximum up/down look angle.
+
+Keep `radiusBlocks` small if the AFK zone is small.
+
+## Basic Anti-AFK
+
+The old simple anti-AFK feature still exists:
 
 ```json
 {
@@ -438,30 +381,63 @@ In `config.json`:
 }
 ```
 
-Meaning:
+Leave `walk` as `false` when `humanMovement.enabled` is `true`.
 
-- `look`: look around
-- `jump`: jump sometimes
-- `sneak`: sneak sometimes
-- `walk`: walk forward sometimes
-- `intervalMs`: base delay between actions
-- `jitterMs`: random extra delay
+## Status Log
 
-Leave `walk` as `false` unless you know what you are doing.
+Status log writes a small status line per bot.
 
-## Logs
-
-Logs go in `logs/`.
-
-Example:
-
-```txt
-logs/
-  main.log
-  AccountName.log
+```json
+{
+  "features": {
+    "statusLog": true
+  },
+  "statusLog": {
+    "intervalMs": 60000
+  }
+}
 ```
 
-Logs are ignored by Git.
+It logs:
+
+- health
+- food
+- game mode
+- dimension
+- position
+
+## Feature Switches
+
+```json
+{
+  "features": {
+    "chatLog": true,
+    "statusLog": true,
+    "autoEat": true,
+    "autoArmor": true,
+    "autoTool": true
+  }
+}
+```
+
+Meaning:
+
+- `chatLog`: write chat and whispers to logs.
+- `statusLog`: write health/food/position status lines.
+- `autoEat`: use food automatically when plugin is loaded.
+- `autoArmor`: equip armor automatically when plugin is loaded.
+- `autoTool`: load tool plugin.
+
+## Useful Commands
+
+```bash
+npm install
+npm run dry
+npm start
+npm test
+npm run check
+npm run pack:dry
+```
 
 ## Common Problems
 
@@ -475,78 +451,14 @@ npm install
 
 Make sure you are in the folder with `package.json`.
 
-### Microsoft asks for a browser code
-
-If you added token/session files and Microsoft still asks for a code, update the
-project. Session files should be used directly and should not force a new
-Microsoft device login.
-
-Also check that your account file has:
-
-```json
-{
-  "profile": {
-    "name": "AccountName",
-    "id": "minecraft-java-profile-uuid-here"
-  },
-  "ygg": {
-    "token": "access-token-here"
-  }
-}
-```
-
-### ForbiddenOperationException or encryptionLoginError
-
-This means the server rejected the account session during online-mode login.
-
-Most common causes:
-
-- the token is expired
-- the token is not a Minecraft Java access token
-- the UUID does not match the token
-- the account does not own Java Edition
-- the account file came from the wrong exporter/tool
-
-Fix:
-
-1. Get a fresh session/account JSON file.
-2. Make sure `ygg.token` is a Minecraft Java access token.
-3. Make sure `profile.id` is the Minecraft Java profile UUID, not a Microsoft or Xbox account ID.
-4. Add `refreshToken` if your account exporter gives you one.
-5. The bot asks Minecraft Services for the real profile name and UUID before connecting. If the token is valid, it can fix a wrong name/UUID automatically.
-6. If a refresh token is available, the bot tries to get a fresh Minecraft Java token automatically.
-7. If it still says `session_token_rejected`, the token is expired, the refresh token is invalid, or the token is the wrong kind of token.
-8. Run `npm run dry` again.
-9. Run `npm start`.
-
-The bot can repair a wrong local profile name/UUID when the token is valid. It
-can refresh an expired token only when a valid refresh token is present.
-
-### autoEat says plugin_invalid
-
-Update the project and run:
-
-```bash
-npm install
-```
-
-The project uses `mineflayer-auto-eat` through its `loader` export.
-
 ### no_accounts
 
-The app did not find any valid accounts.
+No valid account was found.
 
 Fix:
 
-```txt
-cookies/account1.json
-```
-
-or:
-
-```txt
-accounts.json
-```
+- put account JSON files in `cookies/`, or
+- create `accounts.json`
 
 Then run:
 
@@ -554,76 +466,48 @@ Then run:
 npm run dry
 ```
 
-### Wrong server version
+### session_token_rejected
 
-Change:
+The server or Minecraft Services rejected the token.
+
+Common causes:
+
+- expired access token
+- token is not a Minecraft Java token
+- UUID does not match the token
+- account does not own Java Edition
+- refresh token is missing or expired
+
+Fix:
+
+1. Export a fresh Minecraft Java session.
+2. Add a refresh token if your exporter gives one.
+3. Run `npm run dry`.
+4. Run `npm start`.
+
+### Proxy Fails
+
+Check:
+
+- proxy host and port are correct
+- proxy supports SOCKS4 or SOCKS5
+- username/password are correct
+- the proxy allows TCP connections to the Minecraft server
+
+### Bot Walks Too Far
+
+Lower:
 
 ```json
 {
-  "connection": {
-    "version": "1.21.11"
+  "humanMovement": {
+    "radiusBlocks": 2,
+    "burstMaxMs": 4000,
+    "sprintChance": 0.2
   }
 }
 ```
 
-Use the version the server accepts.
+## License
 
-## Useful Commands
-
-Install:
-
-```bash
-npm install
-```
-
-Check accounts:
-
-```bash
-npm run dry
-```
-
-Start:
-
-```bash
-npm start
-```
-
-Check JavaScript syntax:
-
-```bash
-npm run check
-```
-
-## What To Send Someone Who Has A Module Error
-
-```txt
-Open the project folder in a terminal and run:
-
-npm install
-
-Do not download modules one by one. npm install reads package.json and installs everything.
-
-Then test:
-
-npm run dry
-
-Then start:
-
-npm start
-
-If it says "Cannot find package 'mineflayer'", you are either in the wrong folder or you skipped npm install.
-```
-
-## Secret Files
-
-Never upload these:
-
-```txt
-cookies/*.json
-accounts.json
-.env
-profiles/
-logs/
-```
-
-The `.gitignore` is set up to keep them out of GitHub.
+Read [LICENSE](LICENSE). This is a personal-use project.
